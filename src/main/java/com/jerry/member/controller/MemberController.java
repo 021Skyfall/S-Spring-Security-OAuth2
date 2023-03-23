@@ -40,56 +40,5 @@ public class MemberController {
         this.mapper = mapper;
     }
 
-    @PostMapping
-    public ResponseEntity postMember(@Valid @RequestBody MemberDto.Post requestBody) {
-        Member member = mapper.memberPostToMember(requestBody);
-        member.setStamp(new Stamp()); // homework solution 추가
-
-        Member createdMember = memberService.createMember(member);
-        URI location = UriCreator.createUri(MEMBER_DEFAULT_URL, createdMember.getMemberId());
-
-        return ResponseEntity.created(location).build();
-    }
-
-    @PatchMapping("/{member-id}")
-    public ResponseEntity patchMember(
-            @PathVariable("member-id") @Positive long memberId,
-            @Valid @RequestBody MemberDto.Patch requestBody) {
-        requestBody.setMemberId(memberId);
-
-        Member member =
-                memberService.updateMember(mapper.memberPatchToMember(requestBody));
-
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponse(member)),
-                HttpStatus.OK);
-    }
-
-    @GetMapping("/{member-id}")
-    public ResponseEntity getMember(
-            @PathVariable("member-id") @Positive long memberId) {
-        Member member = memberService.findMember(memberId);
-        return new ResponseEntity<>(
-                new SingleResponseDto<>(mapper.memberToMemberResponse(member))
-                , HttpStatus.OK);
-    }
-
-    @GetMapping
-    public ResponseEntity getMembers(@Positive @RequestParam int page,
-                                     @Positive @RequestParam int size) {
-        Page<Member> pageMembers = memberService.findMembers(page - 1, size);
-        List<Member> members = pageMembers.getContent();
-        return new ResponseEntity<>(
-                new MultiResponseDto<>(mapper.membersToMemberResponses(members),
-                        pageMembers),
-                HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{member-id}")
-    public ResponseEntity deleteMember(
-            @PathVariable("member-id") @Positive long memberId) {
-        memberService.deleteMember(memberId);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+    // TODO OAuth 2 인증 환경에서는 회원 정보를 별도로 관리하지 않으므로, 회원 정보를 어떻게 로드할 것인가는 추가적인 논의가 필요
 }
